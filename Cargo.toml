@@ -1,2 +1,5 @@
 [workspace]
-members = []
+members = ["basic-android-integration"]
+
+[workspace.dependencies]
+export-magic = "*"
