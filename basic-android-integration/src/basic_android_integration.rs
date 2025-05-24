@@ -24,3 +24,24 @@ fn example_function() {
 
     println!("status={:?}",status);
 }
+
+fn load_amidi() -> Result<(), Box<dyn std::error::Error>> {
+    unsafe {
+        let lib = Library::new("libamidi.so")?;
+        let amidi_get_version: Symbol<unsafe extern "C" fn() -> u32> =
+            lib.get(b"AMidi_getVersion")?;
+        let version = amidi_get_version();
+        println!("AMidi version: {}", version);
+    }
+    Ok(())
+}
+
+
+#[cfg(test)]
+mod test_libloading {
+    use super::*;
+
+    #[traced_test] fn test_load_amidi() {
+        load_amidi().expect("expected to load amidi object");
+    }
+}

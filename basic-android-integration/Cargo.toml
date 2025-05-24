@@ -10,10 +10,19 @@ description = "todo: write a description here"
 # categories = []
 
 [dependencies]
-ndk = "*"
-ndk-sys = "*"
-jni = "*"
-export-magic.workspace = true
+ndk                     = "*"
+ndk-sys                 = "*"
+jni                     = "*"
+libloading.workspace    = true
+export-magic.workspace  = true
+tracing-setup.workspace = true
+traced-test.workspace   = true
+tracing.workspace       = true
+
+[build-dependencies]
+tracing-setup.workspace = true
+traced-test.workspace   = true
+tracing.workspace       = true
 
 [lib]
 crate-type = ["cdylib"]

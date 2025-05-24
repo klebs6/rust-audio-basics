@@ -14,6 +14,7 @@ NDK_TARGETS := -t armeabi-v7a -t arm64-v8a
 
 #-----------------------------------------------------[this section lets us configure the make invocation]
 DEFAULT          := android
+DEFAULT          := test
 ACTIVE_PACKAGE   := basic-android-integration
 
 #NOCAPTURE := --nocapture
@@ -25,10 +26,25 @@ default: $(DEFAULT)
 ANDROID_NDK_HOME := /usr/local/share/android-ndk
 
 android:
-	ANDROID_NDK_HOME=$(ANDROID_NDK_HOME) RUSTFLAGS=$(RUSTFLAGS) $(CARGO) $(NDK) $(NDK_TARGETS) -o $(ACTIVE_PACKAGE) $(BUILD) $(FEATURES)
+	ANDROID_NDK_HOME=$(ANDROID_NDK_HOME) \
+					 RUSTFLAGS=$(RUSTFLAGS) \
+					 $(CARGO) $(NDK) $(NDK_TARGETS) -o $(ACTIVE_PACKAGE) \
+					 $(BUILD) $(FEATURES)
 
 test:
-	RUST_LOG=trace RUSTFLAGS=$(RUSTFLAGS) $(CARGO) $(TEST) -p $(ACTIVE_PACKAGE) -- $(NOCAPTURE)
+	ANDROID_NDK_HOME=$(ANDROID_NDK_HOME) \
+	RUSTFLAGS=$(RUSTFLAGS) \
+	RUST_LOG=trace \
+	$(CARGO) $(NDK) -t armeabi-v7a build --package $(ACTIVE_PACKAGE) --tests
+
+	@echo "Locating test binary"
+	BINARY=$$(find target/armv7-linux-androideabi/debug/deps -type f -name "$(ACTIVE_PACKAGE)-*" ! -name "*.d" ! -name "*.rlib" | head -n 1) && \
+	echo "Pushing $$BINARY to Android device" && \
+	adb push "$$BINARY" /data/local/tmp/test_binary
+
+	@echo "Executing test binary on Android device"
+	adb shell chmod +x /data/local/tmp/test_binary
+	adb shell /data/local/tmp/test_binary $(NOCAPTURE)
 
 vendor:
 	cargo vendor

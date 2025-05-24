@@ -1,0 +1,7 @@
+Cargo.lock
+basic-android-integration/arm64-v8a/
+basic-android-integration/armeabi-v7a/
+basic-android-integration/basic-android-integration/
+basic-android-integration/target/
+target/
+vendor/

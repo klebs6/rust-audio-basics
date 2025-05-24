@@ -2,4 +2,9 @@
 members = ["basic-android-integration"]
 
 [workspace.dependencies]
-export-magic = "*"
+export-magic       = "*"
+tracing            = { version = "0.1" }
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+tracing-setup      = "*"
+traced-test        = "*"
+libloading         = "0.8"
