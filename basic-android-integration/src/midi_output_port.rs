@@ -1,24 +1,16 @@
 // ---------------- [ File: basic-android-integration/src/midi_output_port.rs ]
 crate::ix!();
 
-///////////////////////////////////////////////////////////////////////////////
-// Safe RAII wrapper for a MIDI output port
-///////////////////////////////////////////////////////////////////////////////
 #[derive(Debug)]
 pub struct MidiOutputPort<'lib> {
-    library: Arc<AmidiLibrary>,
-    raw_out: *mut AMidiOutputPort,
-    _marker: std::marker::PhantomData<&'lib AmidiLibrary>,
+    pub(crate) library: Arc<AmidiLibrary>,
+    pub(crate) raw_out: *mut AMidiOutputPort,
+    pub(crate) _marker: std::marker::PhantomData<&'lib AmidiLibrary>,
 }
 
 impl<'lib> MidiOutputPort<'lib> {
-    /// Receives a MIDI message (up to `buffer.len()` bytes).
-    /// - `opcode_ptr` receives the opcode (AMIDI_OPCODE_DATA, etc.).
-    /// - `num_bytes_received` will contain actual bytes read.
-    /// - `timestamp` will contain the event's timestamp, if available.
-    ///
-    /// Returns `Ok(())` if successful, or `Err(isize)` if the function call fails
-    /// (negative value or other).
+    /// Receive MIDI data (up to `buffer.len()` bytes).
+    /// Returns `Ok(())` if successful, or `Err(isize)` if < 0 from the C API.
     pub fn receive(
         &self,
         opcode_ptr: &mut i32,
@@ -30,11 +22,11 @@ impl<'lib> MidiOutputPort<'lib> {
         let ret = unsafe {
             (self.library.amidi_output_port_receive)(
                 self.raw_out,
-                opcode_ptr as *mut i32,
+                opcode_ptr,
                 buffer.as_mut_ptr(),
                 buffer.len(),
-                num_bytes_received as *mut usize,
-                timestamp as *mut i64,
+                num_bytes_received,
+                timestamp,
             )
         };
         if ret < 0 {
