@@ -36,7 +36,6 @@ fn load_amidi() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-
 #[cfg(test)]
 mod test_libloading {
     use super::*;
