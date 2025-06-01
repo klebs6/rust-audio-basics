@@ -11,14 +11,16 @@ description = "todo: write a description here"
 
 [dependencies]
 ptr = "*"
-ndk                     = "*"
-ndk-sys                 = "*"
-jni                     = "*"
-libloading.workspace    = true
-export-magic.workspace  = true
-tracing-setup.workspace = true
-traced-test.workspace   = true
-tracing.workspace       = true
+ndk                      = "*"
+ndk-sys                  = "*"
+jni                      = "*"
+libloading.workspace     = true
+export-magic.workspace   = true
+tracing-setup.workspace  = true
+traced-test.workspace    = true
+tracing.workspace        = true
+derive_builder.workspace = true
+getset.workspace         = true
 
 [build-dependencies]
 tracing-setup.workspace = true
