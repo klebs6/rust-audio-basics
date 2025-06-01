@@ -15,59 +15,59 @@ pub struct AmidiLibrary {
 
     /// The symbol for `AMidiDevice_fromJava`.
     #[builder(private)]
-    amidi_device_from_java: Symbol<'static, AMidiDeviceFromJavaFn>,
+    pub(crate) amidi_device_from_java: Symbol<'static, AMidiDeviceFromJavaFn>,
 
     /// The symbol for `AMidiDevice_release`.
     #[builder(private)]
-    amidi_device_release: Symbol<'static, AMidiDeviceReleaseFn>,
+    pub(crate) amidi_device_release: Symbol<'static, AMidiDeviceReleaseFn>,
 
     /// The symbol for `AMidiDevice_getType`.
     #[builder(private)]
-    amidi_device_get_type: Symbol<'static, AMidiDeviceGetTypeFn>,
+    pub(crate) amidi_device_get_type: Symbol<'static, AMidiDeviceGetTypeFn>,
 
     /// The symbol for `AMidiDevice_getNumInputPorts`.
     #[builder(private)]
-    amidi_device_get_num_input_ports: Symbol<'static, AMidiDeviceGetNumInputPortsFn>,
+    pub(crate) amidi_device_get_num_input_ports: Symbol<'static, AMidiDeviceGetNumInputPortsFn>,
 
     /// The symbol for `AMidiDevice_getNumOutputPorts`.
     #[builder(private)]
-    amidi_device_get_num_output_ports: Symbol<'static, AMidiDeviceGetNumOutputPortsFn>,
+    pub(crate) amidi_device_get_num_output_ports: Symbol<'static, AMidiDeviceGetNumOutputPortsFn>,
 
     /// The symbol for `AMidiDevice_getDefaultProtocol`.
     #[builder(private)]
-    amidi_device_get_default_protocol: Symbol<'static, AMidiDeviceGetDefaultProtocolFn>,
+    pub(crate) amidi_device_get_default_protocol: Symbol<'static, AMidiDeviceGetDefaultProtocolFn>,
 
     /// The symbol for `AMidiOutputPort_open`.
     #[builder(private)]
-    amidi_output_port_open: Symbol<'static, AMidiOutputPortOpenFn>,
+    pub(crate) amidi_output_port_open: Symbol<'static, AMidiOutputPortOpenFn>,
 
     /// The symbol for `AMidiOutputPort_close`.
     #[builder(private)]
-    amidi_output_port_close: Symbol<'static, AMidiOutputPortCloseFn>,
+    pub(crate) amidi_output_port_close: Symbol<'static, AMidiOutputPortCloseFn>,
 
     /// The symbol for `AMidiOutputPort_receive`.
     #[builder(private)]
-    amidi_output_port_receive: Symbol<'static, AMidiOutputPortReceiveFn>,
+    pub(crate) amidi_output_port_receive: Symbol<'static, AMidiOutputPortReceiveFn>,
 
     /// The symbol for `AMidiInputPort_open`.
     #[builder(private)]
-    amidi_input_port_open: Symbol<'static, AMidiInputPortOpenFn>,
+    pub(crate) amidi_input_port_open: Symbol<'static, AMidiInputPortOpenFn>,
 
     /// The symbol for `AMidiInputPort_send`.
     #[builder(private)]
-    amidi_input_port_send: Symbol<'static, AMidiInputPortSendFn>,
+    pub(crate) amidi_input_port_send: Symbol<'static, AMidiInputPortSendFn>,
 
     /// The symbol for `AMidiInputPort_sendWithTimestamp`.
     #[builder(private)]
-    amidi_input_port_send_with_timestamp: Symbol<'static, AMidiInputPortSendWithTimestampFn>,
+    pub(crate) amidi_input_port_send_with_timestamp: Symbol<'static, AMidiInputPortSendWithTimestampFn>,
 
     /// The symbol for `AMidiInputPort_sendFlush`.
     #[builder(private)]
-    amidi_input_port_send_flush: Symbol<'static, AMidiInputPortSendFlushFn>,
+    pub(crate) amidi_input_port_send_flush: Symbol<'static, AMidiInputPortSendFlushFn>,
 
     /// The symbol for `AMidiInputPort_close`.
     #[builder(private)]
-    amidi_input_port_close: Symbol<'static, AMidiInputPortCloseFn>,
+    pub(crate) amidi_input_port_close: Symbol<'static, AMidiInputPortCloseFn>,
 }
 
 impl AmidiLibrary {
@@ -81,7 +81,7 @@ impl AmidiLibrary {
 impl AmidiLibraryBuilder {
     /// Required path to `libamidi.so`.
     pub fn path(&mut self, path: impl Into<String>) -> &mut Self {
-        self.path = Some(path.into());
+        self.set_path(Some(path.into()));
         self
     }
 
@@ -89,7 +89,7 @@ impl AmidiLibraryBuilder {
     /// Returns an error if any symbol is missing or if the library can't be opened.
     pub fn build(&self) -> Result<Arc<AmidiLibrary>, Box<dyn std::error::Error>> {
         let path = self
-            .path
+            .path()
             .as_ref()
             .ok_or_else(|| "Missing path to libamidi.so in AmidiLibraryBuilder")?;
 
@@ -108,22 +108,22 @@ impl AmidiLibraryBuilder {
         let loaded = AmidiLibrary {
             library: lib,
 
-            amidi_device_from_java: load_sym!(b"AMidiDevice_fromJava"),
-            amidi_device_release: load_sym!(b"AMidiDevice_release"),
-            amidi_device_get_type: load_sym!(b"AMidiDevice_getType"),
-            amidi_device_get_num_input_ports: load_sym!(b"AMidiDevice_getNumInputPorts"),
-            amidi_device_get_num_output_ports: load_sym!(b"AMidiDevice_getNumOutputPorts"),
-            amidi_device_get_default_protocol: load_sym!(b"AMidiDevice_getDefaultProtocol"),
+            amidi_device_from_java:               load_sym!(b"AMidiDevice_fromJava"),
+            amidi_device_release:                 load_sym!(b"AMidiDevice_release"),
+            amidi_device_get_type:                load_sym!(b"AMidiDevice_getType"),
+            amidi_device_get_num_input_ports:     load_sym!(b"AMidiDevice_getNumInputPorts"),
+            amidi_device_get_num_output_ports:    load_sym!(b"AMidiDevice_getNumOutputPorts"),
+            amidi_device_get_default_protocol:    load_sym!(b"AMidiDevice_getDefaultProtocol"),
 
-            amidi_output_port_open: load_sym!(b"AMidiOutputPort_open"),
-            amidi_output_port_close: load_sym!(b"AMidiOutputPort_close"),
-            amidi_output_port_receive: load_sym!(b"AMidiOutputPort_receive"),
+            amidi_output_port_open:               load_sym!(b"AMidiOutputPort_open"),
+            amidi_output_port_close:              load_sym!(b"AMidiOutputPort_close"),
+            amidi_output_port_receive:            load_sym!(b"AMidiOutputPort_receive"),
 
-            amidi_input_port_open: load_sym!(b"AMidiInputPort_open"),
-            amidi_input_port_send: load_sym!(b"AMidiInputPort_send"),
+            amidi_input_port_open:                load_sym!(b"AMidiInputPort_open"),
+            amidi_input_port_send:                load_sym!(b"AMidiInputPort_send"),
             amidi_input_port_send_with_timestamp: load_sym!(b"AMidiInputPort_sendWithTimestamp"),
-            amidi_input_port_send_flush: load_sym!(b"AMidiInputPort_sendFlush"),
-            amidi_input_port_close: load_sym!(b"AMidiInputPort_close"),
+            amidi_input_port_send_flush:          load_sym!(b"AMidiInputPort_sendFlush"),
+            amidi_input_port_close:               load_sym!(b"AMidiInputPort_close"),
         };
 
         info!("Successfully loaded libamidi.so and all symbols.");
