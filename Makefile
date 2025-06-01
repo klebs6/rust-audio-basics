@@ -38,13 +38,22 @@ test:
 	$(CARGO) $(NDK) -t armeabi-v7a build --package $(ACTIVE_PACKAGE) --tests
 
 	@echo "Locating test binary"
-	BINARY=$$(find target/armv7-linux-androideabi/debug/deps -type f -name "$(ACTIVE_PACKAGE)-*" ! -name "*.d" ! -name "*.rlib" | head -n 1) && \
+	BINARY=$$(find target/armv7-linux-androideabi/debug/deps -type f -name "$(subst -,_,$(ACTIVE_PACKAGE))-*" ! -name "*.d" ! -name "*.rlib" | head -n 1); \
+	if [ -z "$$BINARY" ]; then \
+		echo "Error: Test binary not found."; \
+		echo "Searched for pattern: '$(subst -,_,$(ACTIVE_PACKAGE))-*' in target/armv7-linux-androideabi/debug/deps/"; \
+		echo "Directory contents:"; \
+		ls -l target/armv7-linux-androideabi/debug/deps/; \
+		exit 1; \
+	fi; \
+	echo "Found test binary: $$BINARY"; \
 	echo "Pushing $$BINARY to Android device" && \
 	adb push "$$BINARY" /data/local/tmp/test_binary
 
 	@echo "Executing test binary on Android device"
 	adb shell chmod +x /data/local/tmp/test_binary
-	adb shell /data/local/tmp/test_binary $(NOCAPTURE)
+	# Pass RUST_LOG and RUST_BACKTRACE for better debugging on device
+	adb shell RUST_LOG=$(RUST_LOG) RUST_BACKTRACE=1 /data/local/tmp/test_binary $(NOCAPTURE)
 
 vendor:
 	cargo vendor
