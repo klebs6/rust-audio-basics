@@ -31,11 +31,14 @@ fn android() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("cargo:rustc-link-lib=c++_shared");
     debug!("Configured cargo to link library 'c++_shared'");
+        
+     println!("cargo:rustc-link-lib=amidi");
+println!("cargo:rustc-link-search=/home/loko/Android/Sdk/ndk/27/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/30/");
 
     let output_path = env::var("CARGO_NDK_OUTPUT_PATH")
         .unwrap_or_else(|_| "./target/ndk-output".into());
     debug!(output_path, "Retrieved or defaulted CARGO_NDK_OUTPUT_PATH");
-
+//let target_triple= "aarch64-linux-android";
     let target_triple = "arm-linux-androideabi";
     warn!(target_triple, "Using hardcoded target triple");
 
@@ -44,7 +47,7 @@ fn android() -> Result<(), Box<dyn std::error::Error>> {
     debug!(ndk_home, "Retrieved ANDROID_NDK_HOME");
 
     let libcxx_shared_path = PathBuf::from(&ndk_home)
-        .join("toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib")
+        .join("toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib")
         .join(&target_triple)
         .join("libc++_shared.so");
 
@@ -55,7 +58,7 @@ fn android() -> Result<(), Box<dyn std::error::Error>> {
         return Err(format!("Could not find libc++_shared.so at {:?}", libcxx_shared_path).into());
     }
 
-    let target_output_path = PathBuf::from(output_path)
+    let mut target_output_path = PathBuf::from(output_path.clone())
         .join(&target_triple)
         .join("libc++_shared.so");
 
@@ -66,6 +69,34 @@ fn android() -> Result<(), Box<dyn std::error::Error>> {
 
     fs::copy(&libcxx_shared_path, &target_output_path)?;
     info!(from = ?libcxx_shared_path, to = ?target_output_path, "Copied libc++_shared.so successfully");
+
+//------
+ let libamidi_path = PathBuf::from(&ndk_home)
+        .join("toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib")
+        .join("arm-linux-androideabi")
+        .join("30")
+        .join("libamidi.so");
+
+    debug!(?libamidi_path, "Constructed libamidi.so source path");
+
+    if !libamidi_path.exists() {
+        error!(?libamidi_path, "libamidi.so not found");
+        return Err(format!("Could not find libamidi.so at {:?}", libamidi_path).into());
+    }
+
+     target_output_path = PathBuf::from(output_path)
+        .join(&target_triple)
+        .join("libamidi.so");
+
+    debug!(?target_output_path, "Constructed libamidi.so target path");
+
+    fs::create_dir_all(target_output_path.parent().unwrap())?;
+    debug!(parent = ?target_output_path.parent(), "Ensured parent directory exists");
+
+    fs::copy(&libamidi_path, &target_output_path)?;
+    info!(from = ?libamidi_path, to = ?target_output_path, "Copied libamidi.so successfully");
+//_--
+
 
     Ok(())
 }
