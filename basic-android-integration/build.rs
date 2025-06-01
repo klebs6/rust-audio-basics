@@ -33,12 +33,19 @@ fn android(host: &str) -> Result<(), Box<dyn std::error::Error>> {
 
     // Emit the linker instruction for c++_shared
     println!("cargo:rustc-link-lib=c++_shared");
+
     debug!("Emitted linker instruction for c++_shared");
+        
+    println!("cargo:rustc-link-lib=amidi");
+    println!("cargo:rustc-link-search=/home/loko/Android/Sdk/ndk/27/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/30/");
+
+
 
     // We'll retrieve both the final output path and the target triple from env vars
     let output_path = env::var("CARGO_NDK_OUTPUT_PATH")
         .unwrap_or_else(|_| "./target/ndk-output".into());
     debug!(output_path, "Retrieved or defaulted CARGO_NDK_OUTPUT_PATH");
+
 
     let target_triple = env::var("TARGET")
         .expect("Missing TARGET environment variable");
@@ -59,6 +66,7 @@ fn android(host: &str) -> Result<(), Box<dyn std::error::Error>> {
         return Err(format!("Unsupported build host for prebuilt toolchain: {}", host).into());
     };
     debug!(host_prebuilt, "Inferred prebuilt subdirectory name based on HOST");
+
 
     let ndk_home = env::var("ANDROID_NDK_HOME")
         .expect("Missing ANDROID_NDK_HOME");
@@ -96,6 +104,34 @@ fn android(host: &str) -> Result<(), Box<dyn std::error::Error>> {
         to = ?target_output_path,
         "Copied libc++_shared.so successfully"
     );
+
+//------
+ let libamidi_path = PathBuf::from(&ndk_home)
+        .join("toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib")
+        .join("arm-linux-androideabi")
+        .join("30")
+        .join("libamidi.so");
+
+    debug!(?libamidi_path, "Constructed libamidi.so source path");
+
+    if !libamidi_path.exists() {
+        error!(?libamidi_path, "libamidi.so not found");
+        return Err(format!("Could not find libamidi.so at {:?}", libamidi_path).into());
+    }
+
+     target_output_path = PathBuf::from(output_path)
+        .join(&target_triple)
+        .join("libamidi.so");
+
+    debug!(?target_output_path, "Constructed libamidi.so target path");
+
+    fs::create_dir_all(target_output_path.parent().unwrap())?;
+    debug!(parent = ?target_output_path.parent(), "Ensured parent directory exists");
+
+    fs::copy(&libamidi_path, &target_output_path)?;
+    info!(from = ?libamidi_path, to = ?target_output_path, "Copied libamidi.so successfully");
+//_--
+
 
     Ok(())
 }

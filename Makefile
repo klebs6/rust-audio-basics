@@ -17,13 +17,13 @@ DEFAULT          := android
 DEFAULT          := test
 ACTIVE_PACKAGE   := basic-android-integration
 
-#NOCAPTURE := --nocapture
+NOCAPTURE := --nocapture
 
 #----------------------------------------------[here are our rules]
 
 default: $(DEFAULT)
 
-ANDROID_NDK_HOME := /usr/local/share/android-ndk
+ANDROID_NDK_HOME := /home/loko/Android/Sdk/ndk/27/
 
 android:
 	ANDROID_NDK_HOME=$(ANDROID_NDK_HOME) \
@@ -35,10 +35,12 @@ test:
 	ANDROID_NDK_HOME=$(ANDROID_NDK_HOME) \
 	RUSTFLAGS=$(RUSTFLAGS) \
 	RUST_LOG=trace \
-	$(CARGO) $(NDK) -t armeabi-v7a build --package $(ACTIVE_PACKAGE) --tests
+	 $(CARGO) $(NDK) -t armeabi-v7a build --package $(ACTIVE_PACKAGE) --tests
+    ## $(CARGO) $(NDK) -t arm64-v8a build --package $(ACTIVE_PACKAGE) --tests
 
 	@echo "Locating test binary"
 	BINARY=$$(find target/armv7-linux-androideabi/debug/deps -type f -name "$(subst -,_,$(ACTIVE_PACKAGE))-*" ! -name "*.d" ! -name "*.rlib" | head -n 1); \
+	##BINARY=$$(find target/aarch64-linux-android/debug/deps -type f -name "$(subst -,_,$(ACTIVE_PACKAGE))-*" ! -name "*.d" ! -name "*.rlib" | head -n 1); \
 	if [ -z "$$BINARY" ]; then \
 		echo "Error: Test binary not found."; \
 		echo "Searched for pattern: '$(subst -,_,$(ACTIVE_PACKAGE))-*' in target/armv7-linux-androideabi/debug/deps/"; \
