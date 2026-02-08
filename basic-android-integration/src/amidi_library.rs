@@ -49,6 +49,7 @@ impl AmidiLibrary {
         let amidi_device_from_java: AMidiDeviceFromJavaFn = unsafe {
             *lib_arc.get(b"AMidiDevice_fromJava")?
         };
+
         let amidi_device_release: AMidiDeviceReleaseFn = unsafe {
             *lib_arc.get(b"AMidiDevice_release")?
         };

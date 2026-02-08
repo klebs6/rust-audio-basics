@@ -39,8 +39,6 @@ fn android(host: &str) -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rustc-link-lib=amidi");
     println!("cargo:rustc-link-search=/home/loko/Android/Sdk/ndk/27/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/30/");
 
-
-
     // We'll retrieve both the final output path and the target triple from env vars
     let output_path = env::var("CARGO_NDK_OUTPUT_PATH")
         .unwrap_or_else(|_| "./target/ndk-output".into());
